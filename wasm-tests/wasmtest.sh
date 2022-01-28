@@ -44,7 +44,8 @@ echo "Funding contract account for releasing funds"
 ${PIO_CMD} tx bank send ${VALIDATOR_ID} ${CONTRACT} 100000000000nhash  \
     --from validator --fees 100000000000nhash --chain-id testing --keyring-backend test --yes -o json | jq
 
-${PIO_CMD} q bank balances ${CONTRACT}
+echo "Query balances of contract that will be released when executed.  With submsg BankSend"
+${PIO_CMD} q bank balances ${CONTRACT} -o json | jq
 
 echo "Executing wasm contract id ${CONTRACT} NOTE: if BankSend msgfees is added fees flag will need some tinkering"
 MSG="{\"release\":{}}"
