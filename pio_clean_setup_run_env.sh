@@ -1,10 +1,11 @@
 #!/bin/bash
 PROVENANCE_DEV_DIR=~/code/provenance
-VOTING_PERIOD=21s
+VOTING_PERIOD=5s
 
 # clean and rebuild my provenance run environment
 # also adjust the voting period to have faster proposal voting for development 
 cd ${PROVENANCE_DEV_DIR}
+go mod vendor
 make clean 
 make build 
 make run-config 

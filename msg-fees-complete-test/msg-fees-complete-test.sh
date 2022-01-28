@@ -9,7 +9,7 @@ PIO_ENV_FLAGS="-t --home ${PROVENANCE_DEV_DIR}/build/run/provenanced"
 GEN_TMP_DIR=test-tmp
 COMMON_TX_FLAGS="--chain-id testing --keyring-backend test --yes -o json"
 GAS_FLAGS="--gas auto --gas-prices 1905nhash"
-GAS_ADJUSTMENT="--gas-adjustment 1.5"
+GAS_ADJUSTMENT="--gas-adjustment 2"
 
 MSG_TYPE=/cosmos.bank.v1beta1.MsgSend
 NHASH_ADDITIONAL_FEE=1000000000
@@ -109,27 +109,55 @@ ${PIO_CMD} tx sign ${GEN_TMP_DIR}/tmp.generated.send.json --from ${BUYER} ${COMM
 echo "Run Simulate through custom pio simulate to capture any additional fees using gas adjustment ${GAS_ADJUSTMENT}"
 ${PIO_CMD} tx simulate ${GEN_TMP_DIR}/tmp.generated.send.json.signed ${COMMON_TX_FLAGS} --from ${BUYER} ${GAS_ADJUSTMENT} | jq > ${GEN_TMP_DIR}/simulate.response.json
 TOTAL_FEES=$(cat ${GEN_TMP_DIR}/simulate.response.json | jq '.total_fees[] | .amount+.denom ' | tr -d '"' | paste -s -d, -)
-echo "Estimated total fee $TOTAL_FEES"
-TOTAL_FEE_NHASH=$(cat ${GEN_TMP_DIR}/simulate.response.json | jq '.balances[]| select(.denom =="nhash") | .amount | tonumber')
-ESTIMTATED_GAS=$(cat ${GEN_TMP_DIR}/simulate.response.json  | jq '.estimated_gas | tonumber')
-FEE_WITHOUT_ADDITIONAL=$(expr ${TOTAL_FEE_NHASH} - ${NHASH_ADDITIONAL_FEE})
-BASE_FEE=$(expr ${ESTIMATED_GAS} * ${MIN_GAS_PRICE})
-echo "Estimated gas $ESTIMTATED_GAS"
-if [ ${BASE_FEE} -ne ${FEE_WITHOUT_ADDITIONAL}]
+TOTAL_FEE_NHASH=$(cat ${GEN_TMP_DIR}/simulate.response.json | jq '.total_fees[]| select(.denom =="nhash") | .amount | tonumber')
+ESTIMATED_GAS=$(cat ${GEN_TMP_DIR}/simulate.response.json  | jq '.estimated_gas | tonumber')
+ACTUAL_ADDITIONAL_FEE=$(cat ${GEN_TMP_DIR}/simulate.response.json  | jq '.additional_fees[]| select(.denom =="nhash") | .amount | tonumber')
+FEE_WITHOUT_ADDITIONAL=$(echo "${TOTAL_FEE_NHASH} - ${NHASH_ADDITIONAL_FEE}" | bc)
+BASE_FEE=$(echo "${ESTIMATED_GAS} * ${MIN_GAS_PRICE}" | bc)
+if [ $ACTUAL_ADDITIONAL_FEE -ne $NHASH_ADDITIONAL_FEE ]
+then
+    echo "Incorrect Additional fee add. $ACTUAL_ADDITIONAL_FEE -ne $NHASH_ADDITIONAL_FEE"
+    exit 1
+fi
+if [ $BASE_FEE -ne $FEE_WITHOUT_ADDITIONAL ]
 then
     echo "Incorrect base fee estimation. ${BASE_FEE} -ne ${FEE_WITHOUT_ADDITIONAL}"
     exit 1
 fi
-exit 0
-echo "Running bank send with new estimated gas and fees..."
-${PIO_CMD} tx bank send ${BUYER} ${SELLER} 100000000000nhash  \
-    --from ${BUYER} ${COMMON_TX_FLAGS} --gas ${ESTIMTATED_GAS} --fees ${TOTAL_FEES} | jq
+echo "Simulate send tx with additional nhash fee PASS"
 
+echo "Running bank send with new estimated gas and fees..."
+BUYER_NHASH_BALANCE=$(${PIO_CMD} q bank balances ${BUYER} -o json | jq '.balances[]| select(.denom =="nhash") | .amount | tonumber')
+${PIO_CMD} tx bank send ${BUYER} ${SELLER} 100000000000nhash  \
+    --from ${BUYER} ${COMMON_TX_FLAGS} --gas ${ESTIMTATED_GAS} --fees ${TOTAL_FEES} | jq > ${GEN_TMP_DIR}/send.response.json
+CODE=$(cat ${GEN_TMP_DIR}/send.response.json | jq '.code | tonumber')
+if [ $CODE -ne 0 ]
+then
+    echo "bank send tx failed with code: ${CODE}"
+    cat ${GEN_TMP_DIR}/send.response.json 
+    exit 1
+fi
 ${PIO_CMD} q bank balances ${BUYER} -o json | jq '.balances[]| select(.denom =="nhash") | .amount | tonumber'
+EXPECTED_NHASH_BALANCE=$(echo "${BUYER_NHASH_BALANCE} - ${NHASH_SEND_AMOUNT} - ${TOTAL_FEE_NHASH}" | bc)
+RESULT_NHASH_BALANCE=$(${PIO_CMD} q bank balances ${BUYER} -o json | jq '.balances[]| select(.denom =="nhash") | .amount | tonumber')
+echo "Buyer balance, expected: ${EXPECTED_NHASH_BALANCE}  actual: ${RESULT_NHASH_BALANCE} original ${BUYER_NHASH_BALANCE}"
+if [ $EXPECTED_NHASH_BALANCE -ne $RESULT_NHASH_BALANCE ]
+then
+    echo "${EXPECTED_NHASH_BALANCE} -neq ${RESULT_NHASH_BALANCE}"
+    exit 1
+fi
 
 echo "Fee without additional fee ${FEE_WITHOUT_ADDITIONAL}...try and send but should fail."
 ${PIO_CMD} tx bank send ${VALIDATOR_ID} ${SELLER} 100000000000nhash  \
-    --from validator ${COMMON_TX_FLAGS} --gas ${ESTIMTATED_GAS} --fees ${FEE_WITHOUT_ADDITIONAL}nhash | jq
+    --from validator ${COMMON_TX_FLAGS} --gas ${ESTIMTATED_GAS} --fees ${FEE_WITHOUT_ADDITIONAL}nhash | jq> ${GEN_TMP_DIR}/send.response.json
+CODE=$(cat ${GEN_TMP_DIR}/send.response.json | jq '.code | tonumber')
+if [ $CODE -ne 13 ]
+then
+    echo "bank send tx should have fail with expected code 13 actual: ${CODE}"
+    cat ${GEN_TMP_DIR}/send.response.json 
+    exit 1
+fi
+exit 0
 
 echo "Creating marker usd"
 ${PIO_CMD} tx marker new 1000000usd.local --type COIN --from validator \
