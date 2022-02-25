@@ -5,8 +5,14 @@
 # 'make clean ; make build; make run-config; cat ./build/run/provenanced/config/genesis.json | jq '\'' .app_state.gov.voting_params.voting_period="20s" '\'' | tee ./build/run/provenanced/config/genesis.json; cat ./build/run/provenanced/config/genesis.json'
 
 PROVENANCE_DEV_DIR=~/code/provenance
+PROVENANCE_DEV_BUILD=build/provenanced
+PIO_ENV_FLAGS="-t --home ${PROVENANCE_DEV_DIR}/build/run/provenanced"
+PIO_CMD="${PROVENANCE_DEV_DIR}/${PROVENANCE_DEV_BUILD} ${PIO_ENV_FLAGS}"
+
 MNEMONICS_DIR=~/code/pio-scratch/mnemonics
 COMMON_TX_FLAGS="--gas auto --gas-prices 1905nhash --gas-adjustment 2 --chain-id testing --keyring-backend test --yes -o json"
+
+
 ######################################### SETUP FOR ATS CONTRACT EXECUTION ##############################################
 
 ${PIO_CMD} keys add buyer --recover --keyring-backend test < ${MNEMONICS_DIR}/buyer.txt
@@ -22,7 +28,8 @@ ${PIO_CMD} \
      tx marker new 1000gme.local \
     --type COIN \
     --from validator \
-    ${COMMON_TX_FLAGS} | jq
+    --fees 101000000000nhash \
+    --chain-id testing --keyring-backend test --yes -o json | jq
 
 echo "Grant marker gme"
 ${PIO_CMD} \
@@ -49,7 +56,8 @@ ${PIO_CMD} \
      tx marker new 1000usd.local \
     --type COIN \
     --from validator \
-    ${COMMON_TX_FLAGS} | jq
+    --fees 101000000000nhash \
+    --chain-id testing --keyring-backend test --yes -o json | jq
 
 echo "Creating marker usd"
 ${PIO_CMD} \
