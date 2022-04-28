@@ -79,7 +79,7 @@ ${PIO_CMD} \
 # 
 # 
 echo "Funding all accounts"
-${PIO_CMD} tx bank send ${VALIDATOR_ID} ${BUYER} 100000000000nhash  \
+${PIO_CMD} tx bank send ${VALIDATOR_ID} ${BUYER} 1000000000000000nhash  \
     --from validator \
     ${COMMON_TX_FLAGS} | jq
 
@@ -87,7 +87,7 @@ ${PIO_CMD} tx marker withdraw usd.local 1000usd.local ${BUYER}  \
     --from validator \
     ${COMMON_TX_FLAGS} | jq
 
-${PIO_CMD} tx bank send ${VALIDATOR_ID} ${SELLER} 100000000000nhash  \
+${PIO_CMD} tx bank send ${VALIDATOR_ID} ${SELLER} 1000000000000000nhash  \
     --from validator \
     ${COMMON_TX_FLAGS} | jq
 
