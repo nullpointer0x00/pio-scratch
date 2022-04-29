@@ -16,7 +16,7 @@ ${PROVENANCE_DEV_DIR}/build/provenanced tx reward proposal add "${TITLE}" "${DES
     --epoch-id minute \
     --epoch-offset 1 \
     --num-epochs 5 \
-    --minimum 3 \
+    --minimum 2 \
     --maximum 10 \
     --eligibility-criteria "{\"name\":\"name\",\"action\":{\"@type\":\"/provenance.reward.v1.ActionDelegate\"}}" \
     --from buyer \
