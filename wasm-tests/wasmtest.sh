@@ -21,7 +21,7 @@ GAS_ADJUSTMENT_FLAGS="--gas auto --gas-prices 1905nhash --gas-adjustment 2"
 EXECUTE_FEE=3000000000nhash
 
 # if code id is set.  It will skip storing and init the contract
-# CODE_ID=1
+CODE_ID=1
 
 # NOTE: to initialize these accounts ../pio_env_setup.sh is a good reference
 export VALIDATOR_ID=$(${PROVENANCE_DEV_DIR}/build/provenanced keys show -a validator --home ${PROVENANCE_DEV_DIR}/build/run/provenanced -t)

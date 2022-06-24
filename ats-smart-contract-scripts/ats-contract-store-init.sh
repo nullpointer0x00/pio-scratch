@@ -16,13 +16,13 @@ export SELLER=$(${PROVENANCE_DEV_DIR}/build/provenanced keys show -a seller --ho
 
 echo "Storing ${WASM_BIN_DIR}/hackatom.wasm"
 ${PIO_CMD} \
-    tx wasm store ${WASM_BIN_DIR}/hackatom.wasm  \
+    tx wasm store ${WASM_BIN_DIR}/ats_smart_contract-1.8.wasm  \
     --from validator \
     ${COMMON_TX_FLAGS} | jq
 
-echo "Initiating wasm contract id 1"
+echo "Initiating wasm contract id 2"
 ${PIO_CMD} \
-    tx wasm instantiate 1 \
+    tx wasm instantiate 2 \
     '{"name":"ats-ex", "bind_name":"ats-ex.pb", "base_denom":"gme.local", "convertible_base_denoms":[], "supported_quote_denoms":["usd.local"], "approvers":[], "executors":["'${VALIDATOR_ID}'"], "ask_required_attributes":[], "bid_required_attributes":[], "price_precision": "0", "size_increment": "1"}' \
     --admin ${VALIDATOR_ID} \
     --label ats-ex \

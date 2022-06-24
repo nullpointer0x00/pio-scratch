@@ -10,13 +10,15 @@ PIO_ENV_FLAGS="-t --home ${PROVENANCE_DEV_DIR}/build/run/provenanced"
 PIO_CMD="${PROVENANCE_DEV_DIR}/${PROVENANCE_DEV_BUILD} ${PIO_ENV_FLAGS}"
 
 MNEMONICS_DIR=~/code/pio-scratch/mnemonics
-COMMON_TX_FLAGS="--gas auto --gas-prices 1905nhash --gas-adjustment 2 --chain-id testing --keyring-backend test --yes -o json"
+COMMON_TX_FLAGS="--gas auto --gas-prices 1905nhash --gas-adjustment 2 --yes -o json"
 
 
 ######################################### SETUP FOR ATS CONTRACT EXECUTION ##############################################
 
 ${PIO_CMD} keys add buyer --recover --keyring-backend test < ${MNEMONICS_DIR}/buyer.txt
 ${PIO_CMD} keys add seller --recover --keyring-backend test < ${MNEMONICS_DIR}/seller.txt
+${PIO_CMD} keys add feebucket --recover --keyring-backend test < ${MNEMONICS_DIR}/feebucket.txt
+${PIO_CMD} keys add merchant --recover --keyring-backend test < ${MNEMONICS_DIR}/merchant.txt
 
 VALIDATOR_ID=$(${PROVENANCE_DEV_DIR}/build/provenanced keys show -a validator --home ${PROVENANCE_DEV_DIR}/build/run/provenanced -t) 
 BUYER=$(${PROVENANCE_DEV_DIR}/build/provenanced keys show -a buyer --home ${PROVENANCE_DEV_DIR}/build/run/provenanced -t) 
@@ -80,7 +82,6 @@ ${PIO_CMD} \
 # 
 echo "Funding all accounts"
 ${PIO_CMD} tx bank send ${VALIDATOR_ID} ${BUYER} 1000000000000000nhash  \
-    --from validator \
     ${COMMON_TX_FLAGS} | jq
 
 ${PIO_CMD} tx marker withdraw usd.local 1000usd.local ${BUYER}  \
@@ -88,7 +89,6 @@ ${PIO_CMD} tx marker withdraw usd.local 1000usd.local ${BUYER}  \
     ${COMMON_TX_FLAGS} | jq
 
 ${PIO_CMD} tx bank send ${VALIDATOR_ID} ${SELLER} 1000000000000000nhash  \
-    --from validator \
     ${COMMON_TX_FLAGS} | jq
 
 ${PIO_CMD} tx marker withdraw gme.local 1000gme.local ${SELLER}  \
