@@ -26,7 +26,7 @@ ${PIO_CMD} keys add merchant --recover --keyring-backend test < ${MNEMONICS_DIR}
 
 VALIDATOR_ID=$(${PROVENANCE_DEV_BUILD} keys show -a validator ${PIO_ENV_FLAGS}) 
 BUYER=$(${PROVENANCE_DEV_BUILD} keys show -a buyer ${PIO_ENV_FLAGS}) 
-SELLER=$(${PROVENANCE_DEV_BUILD} keys show -a seller --home ${PIO_ENV_FLAGS}) 
+SELLER=$(${PROVENANCE_DEV_BUILD} keys show -a seller ${PIO_ENV_FLAGS})
 
 echo "Creating marker gme"
 
