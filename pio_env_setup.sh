@@ -13,7 +13,7 @@ PIO_ENV_FLAGS="-t --home ${PROVENANCE_HOME}"
 PIO_CMD="${PROVENANCE_DEV_BUILD} ${PIO_ENV_FLAGS}"
 CHAIN_ID=testing
 
-MNEMONICS_DIR=${SCRIRPTS_DIR}/mnemonics
+MNEMONICS_DIR=${SCRIPTS_DIR}/mnemonics
 COMMON_TX_FLAGS="--gas auto --gas-prices 1905nhash --gas-adjustment 2 --yes -o json"
 
 
