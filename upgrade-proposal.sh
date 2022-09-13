@@ -14,23 +14,21 @@ INFO="upgrade info"
 DEPOSIT=100100000000000nhash
 UPGRADE_HEIGHT=50
 PROPOSAL_ID=1
-LEGACY_PROPOSAL_CMD=submit-legacy-proposal
 PROPOSAL_CMD=submit-proposal
 
 echo "ADDING UPGRADE PROPOSAL"
-${PROVENANCE_DEV_BUILD} tx gov ${LEGACY_PROPOSAL_CMD} software-upgrade "${VERSION_ID}" \
+${PROVENANCE_DEV_BUILD} tx gov ${PROPOSAL_CMD} software-upgrade "${VERSION_ID}" \
     --title "${TITLE}" \
     --description "${DESCRIPTION}" \
     --upgrade-info "${INFO}" \
     --upgrade-height ${UPGRADE_HEIGHT} \
     --deposit ${DEPOSIT} \
     --from validator \
-    --no-validate \
     --yes -t --home ${PROVENANCE_HOME} \
     --fees 10000000000000nhash --chain-id ${CHAIN_ID} --keyring-backend test -o json | jq
 
 echo "VOTING ON PROPOSAL"
-${PROVENANCE_DEV_BUILD}tx gov vote ${PROPOSAL_ID} yes --from validator --yes -t --home ${PROVENANCE_HOME} --fees 10000000000000nhash --chain-id ${CHAIN_ID} --keyring-backend test -o json | jq
+${PROVENANCE_DEV_BUILD} tx gov vote ${PROPOSAL_ID} yes --from validator --yes -t --home ${PROVENANCE_HOME} --fees 10000000000000nhash --chain-id ${CHAIN_ID} --keyring-backend test -o json | jq
 
 
 # provenanced tx gov submit-proposal software-upgrade "mango" \
