@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Provenance Configuration
-PROVENANCE_DEV_DIR=~/work/provenance
+PROVENANCE_DEV_DIR=~/code/provenance
 PROVENANCE_DEV_BUILD=${PROVENANCE_DEV_DIR}/build/provenanced
 PROVENANCE_HOME=${PROVENANCE_DEV_DIR}/build/run/provenanced
 CHAIN_ID=testing

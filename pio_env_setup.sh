@@ -5,8 +5,8 @@
 # 'make clean ; make build; make run-config; cat ./build/run/provenanced/config/genesis.json | jq '\'' .app_state.gov.voting_params.voting_period="20s" '\'' | tee ./build/run/provenanced/config/genesis.json; cat ./build/run/provenanced/config/genesis.json'
 
 # Provenance Configuration
-SCRIPTS_DIR=~/work/pio-scratch
-PROVENANCE_DEV_DIR=~/work/provenance
+SCRIPTS_DIR=~/code/pio-scratch
+PROVENANCE_DEV_DIR=~/code/provenance
 PROVENANCE_DEV_BUILD=${PROVENANCE_DEV_DIR}/build/provenanced
 PROVENANCE_HOME=${PROVENANCE_DEV_DIR}/build/run/provenanced
 PIO_ENV_FLAGS="-t --home ${PROVENANCE_HOME}"
