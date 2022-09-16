@@ -4,12 +4,16 @@
 # provenance setup, clean project, make, adjust the voting period in the config to test msg based fee proposals: 
 # 'make clean ; make build; make run-config; cat ./build/run/provenanced/config/genesis.json | jq '\'' .app_state.gov.voting_params.voting_period="20s" '\'' | tee ./build/run/provenanced/config/genesis.json; cat ./build/run/provenanced/config/genesis.json'
 
+# Provenance Configuration
+SCRIPTS_DIR=~/code/pio-scratch
 PROVENANCE_DEV_DIR=~/code/provenance
-PROVENANCE_DEV_BUILD=build/provenanced
-PIO_ENV_FLAGS="-t --home ${PROVENANCE_DEV_DIR}/build/run/provenanced"
-PIO_CMD="${PROVENANCE_DEV_DIR}/${PROVENANCE_DEV_BUILD} ${PIO_ENV_FLAGS}"
+PROVENANCE_DEV_BUILD=${PROVENANCE_DEV_DIR}/build/provenanced
+PROVENANCE_HOME=${PROVENANCE_DEV_DIR}/build/run/provenanced
+PIO_ENV_FLAGS="-t --home ${PROVENANCE_HOME}"
+PIO_CMD="${PROVENANCE_DEV_BUILD} ${PIO_ENV_FLAGS}"
+CHAIN_ID=testing
 
-MNEMONICS_DIR=~/code/pio-scratch/mnemonics
+MNEMONICS_DIR=${SCRIPTS_DIR}/mnemonics
 COMMON_TX_FLAGS="--gas auto --gas-prices 1905nhash --gas-adjustment 2 --yes -o json"
 
 
@@ -20,9 +24,9 @@ ${PIO_CMD} keys add seller --recover --keyring-backend test < ${MNEMONICS_DIR}/s
 ${PIO_CMD} keys add feebucket --recover --keyring-backend test < ${MNEMONICS_DIR}/feebucket.txt
 ${PIO_CMD} keys add merchant --recover --keyring-backend test < ${MNEMONICS_DIR}/merchant.txt
 
-VALIDATOR_ID=$(${PROVENANCE_DEV_DIR}/build/provenanced keys show -a validator --home ${PROVENANCE_DEV_DIR}/build/run/provenanced -t) 
-BUYER=$(${PROVENANCE_DEV_DIR}/build/provenanced keys show -a buyer --home ${PROVENANCE_DEV_DIR}/build/run/provenanced -t) 
-SELLER=$(${PROVENANCE_DEV_DIR}/build/provenanced keys show -a seller --home ${PROVENANCE_DEV_DIR}/build/run/provenanced -t) 
+VALIDATOR_ID=$(${PROVENANCE_DEV_BUILD} keys show -a validator ${PIO_ENV_FLAGS}) 
+BUYER=$(${PROVENANCE_DEV_BUILD} keys show -a buyer ${PIO_ENV_FLAGS}) 
+SELLER=$(${PROVENANCE_DEV_BUILD} keys show -a seller ${PIO_ENV_FLAGS})
 
 echo "Creating marker gme"
 
@@ -31,7 +35,7 @@ ${PIO_CMD} \
     --type COIN \
     --from validator \
     --fees 101000000000nhash \
-    --chain-id testing --keyring-backend test --yes -o json | jq
+    --chain-id ${CHAIN_ID} --keyring-backend test --yes -o json | jq
 
 echo "Grant marker gme"
 ${PIO_CMD} \
@@ -59,7 +63,7 @@ ${PIO_CMD} \
     --type COIN \
     --from validator \
     --fees 101000000000nhash \
-    --chain-id testing --keyring-backend test --yes -o json | jq
+    --chain-id ${CHAIN_ID} --keyring-backend test --yes -o json | jq
 
 echo "Creating marker usd"
 ${PIO_CMD} \
