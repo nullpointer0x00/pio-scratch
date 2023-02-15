@@ -16,6 +16,10 @@ UPGRADE_HEIGHT=50
 PROPOSAL_ID=1
 PROPOSAL_CMD=submit-legacy-proposal
 
+
+PROPOSAL_ID=$($PROVENANCE_BIN -t --home $PROVENANCE_HOME q gov proposals | grep "id:" | wc -l | sed 's/ //g')
+PROPOSAL_ID=$(echo $(( $PROPOSAL_ID + 1 )))
+
 echo "ADDING UPGRADE PROPOSAL"
 ${PROVENANCE_DEV_BUILD} tx gov ${PROPOSAL_CMD} software-upgrade "${VERSION_ID}" \
     --title "${TITLE}" \
